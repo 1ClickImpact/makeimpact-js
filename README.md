@@ -18,7 +18,7 @@ pnpm add makeimpact
 
 ## 🚀 Getting Started
 
-You'll need an API key to use this SDK. You can get a free API key from [1ClickImpact's pricing page](https://www.1clickimpact.com/pricing).
+You'll need an API key to use this SDK. You can get your API key from the [1ClickImpact Account API Keys page](https://1clickimpact.com/account/api-keys).
 
 ```javascript
 import { OneClickImpact, Environment } from "makeimpact";
