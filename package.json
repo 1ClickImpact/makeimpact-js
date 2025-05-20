@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Official JavaScript SDK for 1ClickImpact",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "browser": "dist/index.umd.js",
+  "unpkg": "dist/index.umd.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist",

@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-4.9%2B-blue)](https://www.typescriptlang.org/)
 
-> Official JavaScript SDK for 1ClickImpact - Easily integrate environmental impact actions into your applications
+> Official JavaScript SDK for 1ClickImpact - Easily integrate impact actions into your applications
 
 ## 📦 Installation
 
@@ -87,7 +87,7 @@ await sdk.captureCarbon({
 
 ### 💰 Donate Money
 
-Support environmental causes through direct monetary donations.
+Support any cause through direct monetary donations.
 
 ```javascript
 // Donate $1.00 (amount in cents)
