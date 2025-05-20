@@ -1,16 +1,22 @@
-# MakeImpact
+# 🌱 MakeImpact
 
-Official JavaScript SDK for 1ClickImpact - Easily integrate environmental impact actions into your application.
+[![npm version](https://img.shields.io/npm/v/makeimpact.svg)](https://www.npmjs.com/package/makeimpact)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-4.9%2B-blue)](https://www.typescriptlang.org/)
 
-## Installation
+> Official JavaScript SDK for 1ClickImpact - Easily integrate environmental impact actions into your applications
+
+## 📦 Installation
 
 ```bash
 npm install makeimpact
 # or
 yarn add makeimpact
+# or
+pnpm add makeimpact
 ```
 
-## Getting Started
+## 🚀 Getting Started
 
 You'll need an API key to use this SDK. You can get a free API key from [1ClickImpact's pricing page](https://www.1clickimpact.com/pricing).
 
@@ -20,103 +26,89 @@ import { OneClickImpact, Environment } from "makeimpact";
 // Initialize the SDK with your API key (production environment by default)
 const sdk = new OneClickImpact("your_api_key");
 
-// Or specify the sandbox environment for testing
-const testSdk = new OneClickImpact("your_test_api_key", Environment.SANDBOX);
+// Create environmental impact with just a few lines of code
+await sdk.plantTree({ amount: 1 });
+await sdk.cleanOcean({ amount: 5 });
+await sdk.captureCarbon({ amount: 2 });
+```
 
-// Plant trees
+## 🌍 Environmental Impact Actions
+
+### 🌳 Plant Trees
+
+Help combat deforestation and climate change by planting trees.
+
+```javascript
+// Plant a single tree
 await sdk.plantTree({ amount: 1 });
 
 // Plant trees with a specific category
-await sdk.plantTree({ amount: 1, category: "food" });
+await sdk.plantTree({ amount: 10, category: "food" });
 
-// Clean ocean plastic
-await sdk.cleanOcean({ amount: 5 });
-
-// Capture carbon
-await sdk.captureCarbon({ amount: 2 });
-
-// To engage customers and help them see their personal contribution, include the customer information in your request.
-// After impact, we'll automatically send them an email with a secure link to track their impact in real time via a personalized dashboard.
+// Plant trees with customer tracking
 await sdk.plantTree({
-  amount: 1,
+  amount: 5,
   customerEmail: "customer@example.com",
   customerName: "John Doe",
 });
 ```
 
-## Environments
+### 🌊 Clean Ocean Plastic
 
-The SDK supports two environments:
-
-- **Production** (default): Uses the live API at `https://api.1clickimpact.com`
-- **Sandbox**: Uses the testing API at `https://sandbox.1clickimpact.com`
-
-To use the sandbox environment for testing:
+Remove plastic waste from our oceans to protect marine life.
 
 ```javascript
-import { OneClickImpact, Environment } from "makeimpact";
+// Clean 5 pounds of ocean plastic
+await sdk.cleanOcean({ amount: 5 });
 
-const sdk = new OneClickImpact("your_test_api_key", Environment.SANDBOX);
-```
-
-## API Reference
-
-### Initialize the SDK
-
-```javascript
-// Production environment (default)
-const sdk = new OneClickImpact("your_api_key");
-
-// Or sandbox environment for testing
-const sdk = new OneClickImpact("your_test_api_key", Environment.SANDBOX);
-```
-
-### Plant Trees
-
-```javascript
-await sdk.plantTree({
-  amount: number,       // Required: Number of trees to plant (1-10,000,000)
-  category?: string,    // Optional: Category for the tree planting
-  customerEmail?: string, // Optional: Customer's email
-  customerName?: string   // Optional: Customer's name (only used if email is provided)
-});
-```
-
-### Clean Ocean
-
-```javascript
+// Clean ocean plastic with customer tracking
 await sdk.cleanOcean({
-  amount: number,       // Required: Amount of waste to clean in pounds (lbs) (1-10,000,000)
-  customerEmail?: string, // Optional: Customer's email
-  customerName?: string   // Optional: Customer's name (only used if email is provided)
+  amount: 10,
+  customerEmail: "customer@example.com",
+  customerName: "John Doe",
 });
 ```
 
-### Capture Carbon
+### ♻️ Capture Carbon
+
+Reduce greenhouse gas emissions by capturing carbon.
 
 ```javascript
+// Capture 2 pounds of carbon
+await sdk.captureCarbon({ amount: 2 });
+
+// Capture carbon with customer tracking
 await sdk.captureCarbon({
-  amount: number,       // Required: Amount of carbon to capture in pounds (lbs) (1-10,000,000)
-  customerEmail?: string, // Optional: Customer's email
-  customerName?: string   // Optional: Customer's name (only used if email is provided)
+  amount: 5,
+  customerEmail: "customer@example.com",
+  customerName: "John Doe",
 });
 ```
 
-### Donate Money
+### 💰 Donate Money
+
+Support environmental causes through direct monetary donations.
 
 ```javascript
+// Donate $1.00 (amount in cents)
+await sdk.donateMoney({ amount: 100 });
+
+// Donate with customer tracking
 await sdk.donateMoney({
-  amount: number,       // Required: Amount in smallest USD units (cents). For example, $1 = 100, $0.10 = 10
-                        // Must be between 1 and 1,000,000,000 units
-  customerEmail?: string, // Optional: Customer's email
-  customerName?: string   // Optional: Customer's name (only used if email is provided)
+  amount: 500, // $5.00
+  customerEmail: "customer@example.com",
+  customerName: "John Doe",
 });
 ```
 
-> Note: To set up a custom cause for donations, please contact 1ClickImpact directly.
+> **Note**: To set up a custom cause for donations, please contact 1ClickImpact directly.
 > All causes must be vetted and approved to ensure they meet their standards for transparency and impact.
 
+## 📊 Data Access & Reporting
+
 ### Get Records
+
+Retrieve impact records with optional filtering.
 
 ```javascript
 // Get all records
@@ -142,6 +134,8 @@ const paginatedRecords = await sdk.getRecords({
 
 ### Get Customer Records
 
+Retrieve records for specific customers.
+
 ```javascript
 // Get records for a specific customer
 const customerRecords = await sdk.getCustomerRecords({
@@ -153,47 +147,71 @@ const customerTreeRecords = await sdk.getCustomerRecords({
   customerEmail: "customer@example.com",
   filterBy: "tree_planted",
 });
-
-// Pagination for customer records
-const paginatedCustomerRecords = await sdk.getCustomerRecords({
-  customerEmail: "customer@example.com",
-  cursor: "cursor_from_previous_response",
-  limit: 10,
-});
 ```
 
 ### Get Customers
+
+Retrieve customer information.
 
 ```javascript
 // Get all customers (default limit is 10)
 const customers = await sdk.getCustomers();
 
-// Get customers with optional query parameters
+// Get customers with filtering and pagination
 const filteredCustomers = await sdk.getCustomers({
-  customerEmail: "example@email.com", // Optional: Filter by customer email
-  limit: 50, // Optional: Limit results (1-1000, default is 10)
+  customerEmail: "example@email.com", // Optional: Filter by email
+  limit: 50, // Optional: Limit results (1-1000)
   cursor: "cursor_from_previous_response", // Optional: For pagination
 });
 ```
 
 ### Get Impact
 
+Get aggregated impact statistics.
+
 ```javascript
-// Get impact statistics
+// Get overall impact statistics for your organization
 const impact = await sdk.getImpact();
+
+console.log(`Trees planted: ${impact.treePlanted}`);
+console.log(`Ocean waste removed: ${impact.wasteRemoved} lbs`);
+console.log(`Carbon captured: ${impact.carbonCaptured} lbs`);
+console.log(`Money donated: $${impact.moneyDonated / 100}`);
 ```
 
 ### Who Am I
+
+Verify your API key and get account information.
 
 ```javascript
 // Verify API key and get account information
 const accountInfo = await sdk.whoAmI();
 ```
 
-## Documentation
+## ⚙️ Configuration
 
-For more details about the 1ClickImpact API, visit [1ClickImpact API Documentation](https://docs.1clickimpact.com/plant-trees).
+### Environments
 
-## License
+The SDK supports two environments:
+
+- **Production** (default): Uses the live API at `https://api.1clickimpact.com`
+- **Sandbox**: Uses the testing API at `https://sandbox.1clickimpact.com`
+
+To use the sandbox environment for testing:
+
+```javascript
+import { OneClickImpact, Environment } from "makeimpact";
+
+// Initialize with sandbox environment
+const sdk = new OneClickImpact("your_test_api_key", Environment.SANDBOX);
+```
+
+## 🔗 Additional Resources
+
+- [1ClickImpact API Documentation](https://docs.1clickimpact.com/plant-trees)
+- [1ClickImpact Website](https://www.1clickimpact.com)
+- [Pricing & API Keys](https://www.1clickimpact.com/pricing)
+
+## 📄 License
 
 MIT
