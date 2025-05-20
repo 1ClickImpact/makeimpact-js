@@ -1,0 +1,12 @@
+src/
+__tests__/
+coverage/
+node_modules/
+tsconfig.json
+jest.config.js
+jest.setup.js
+.env
+.env.example
+.github/
+.vscode/
+*.log
