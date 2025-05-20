@@ -6,8 +6,17 @@ import {
   GetRecordsParams,
   GetCustomerRecordsParams,
   GetCustomersParams,
-  ApiResponse,
   Environment,
+  PlantTreeResponse,
+  CleanOceanResponse,
+  CaptureCarbonResponse,
+  DonateMoneyResponse,
+  Customer,
+  GetRecordsResponse,
+  GetCustomerRecordsResponse,
+  GetCustomersResponse,
+  ImpactResponse,
+  WhoAmIResponse,
 } from "./types";
 
 export class OneClickImpact {
@@ -42,9 +51,9 @@ export class OneClickImpact {
    * @param params.category - Optional: Category for the tree planting
    * @param params.customerEmail - Optional: Customer's email
    * @param params.customerName - Optional: Customer's name (only used if email is provided)
-   * @returns API response
+   * @returns PlantTreeResponse
    */
-  async plantTree(params: PlantTreeParams): Promise<ApiResponse> {
+  async plantTree(params: PlantTreeParams): Promise<PlantTreeResponse> {
     const { amount, category, customerEmail, customerName } = params;
 
     const body: Record<string, any> = {
@@ -57,7 +66,24 @@ export class OneClickImpact {
       if (customerName) body.customer_name = customerName;
     }
 
-    return this.makeRequest("/v1/plant_trees", body);
+    const response = await this.makeRequest("/v1/plant_tree", body);
+
+    // Transform API response to match the PlantTreeResponse interface
+    return {
+      userID: response.user_id,
+      treePlanted: response.tree_planted,
+      category: response.category,
+      customer: response.customer
+        ? {
+            customerID: response.customer.customer_id,
+            CustomerInfo: {
+              customerEmail: response.customer.customer_email,
+              customerName: response.customer.customer_name,
+            },
+          }
+        : undefined,
+      timeUTC: response.time_utc,
+    };
   }
 
   /**
@@ -66,9 +92,9 @@ export class OneClickImpact {
    * @param params.amount - Amount of waste to clean in pounds (lbs) (1-10,000,000)
    * @param params.customerEmail - Optional: Customer's email
    * @param params.customerName - Optional: Customer's name (only used if email is provided)
-   * @returns API response
+   * @returns CleanOceanResponse
    */
-  async cleanOcean(params: CleanOceanParams): Promise<ApiResponse> {
+  async cleanOcean(params: CleanOceanParams): Promise<CleanOceanResponse> {
     const { amount, customerEmail, customerName } = params;
 
     const body: Record<string, any> = {
@@ -80,7 +106,17 @@ export class OneClickImpact {
       if (customerName) body.customer_name = customerName;
     }
 
-    return this.makeRequest("/v1/clean_ocean", body);
+    const response = await this.makeRequest("/v1/clean_ocean", body);
+
+    // Transform API response to match the CleanOceanResponse interface
+    return {
+      userID: response.user_id,
+      wasteRemoved: response.waste_removed,
+      customer: response.customer
+        ? transformCustomer(response.customer)
+        : undefined,
+      timeUTC: response.time_utc,
+    };
   }
 
   /**
@@ -89,9 +125,11 @@ export class OneClickImpact {
    * @param params.amount - Amount of carbon to capture in pounds (lbs) (1-10,000,000)
    * @param params.customerEmail - Optional: Customer's email
    * @param params.customerName - Optional: Customer's name (only used if email is provided)
-   * @returns API response
+   * @returns CaptureCarbonResponse
    */
-  async captureCarbon(params: CaptureCarbonParams): Promise<ApiResponse> {
+  async captureCarbon(
+    params: CaptureCarbonParams
+  ): Promise<CaptureCarbonResponse> {
     const { amount, customerEmail, customerName } = params;
 
     const body: Record<string, any> = {
@@ -103,7 +141,17 @@ export class OneClickImpact {
       if (customerName) body.customer_name = customerName;
     }
 
-    return this.makeRequest("/v1/capture_carbon", body);
+    const response = await this.makeRequest("/v1/capture_carbon", body);
+
+    // Transform API response to match the CaptureCarbonResponse interface
+    return {
+      userID: response.user_id,
+      carbonCaptured: response.carbon_captured,
+      customer: response.customer
+        ? transformCustomer(response.customer)
+        : undefined,
+      timeUTC: response.time_utc,
+    };
   }
 
   /**
@@ -112,9 +160,9 @@ export class OneClickImpact {
    * @param params.amount - Amount in smallest USD units (cents). For example, $1 = 100, $0.10 = 10 (1-1,000,000,000)
    * @param params.customerEmail - Optional: Customer's email
    * @param params.customerName - Optional: Customer's name (only used if email is provided)
-   * @returns API response
+   * @returns DonateMoneyResponse
    */
-  async donateMoney(params: DonateMoneyParams): Promise<ApiResponse> {
+  async donateMoney(params: DonateMoneyParams): Promise<DonateMoneyResponse> {
     const { amount, customerEmail, customerName } = params;
 
     const body: Record<string, any> = {
@@ -126,36 +174,59 @@ export class OneClickImpact {
       if (customerName) body.customer_name = customerName;
     }
 
-    return this.makeRequest("/v1/donate_money", body);
+    const response = await this.makeRequest("/v1/donate_money", body);
+
+    // Transform API response to match the DonateMoneyResponse interface
+    return {
+      userID: response.user_id,
+      moneyDonated: response.money_donated,
+      customer: response.customer
+        ? transformCustomer(response.customer)
+        : undefined,
+      timeUTC: response.time_utc,
+    };
   }
 
   /**
    * Get impact statistics
    * @returns Impact statistics for your organization
    */
-  async getImpact(): Promise<ApiResponse> {
-    return this.makeRequest("/v1/impact", null, "GET");
+  async getImpact(): Promise<ImpactResponse> {
+    const response = await this.makeRequest("/v1/impact", null, "GET");
+
+    return {
+      userID: response.user_id,
+      treePlanted: response.tree_planted || 0,
+      wasteRemoved: response.waste_removed || 0,
+      carbonCaptured: response.carbon_captured || 0,
+      moneyDonated: response.money_donated || 0,
+    };
   }
 
   /**
    * Verify API key and get account information
    * @returns Account information for the provided API key
    */
-  async whoAmI(): Promise<ApiResponse> {
-    return this.makeRequest("/v1/whoami", null, "GET");
+  async whoAmI(): Promise<WhoAmIResponse> {
+    const response = await this.makeRequest("/v1/whoami", null, "GET");
+
+    return {
+      userID: response.user_id,
+      email: response.email,
+    };
   }
 
   /**
    * Get impact records
    * @param params - Optional parameters to filter records
-   * @param params.filterBy - Optional: Filter records by type (Can be "tree_planted", "waste_removed", "carbon_captured", or "money_donated")
+   * @param params.filterBy - Optional: Filter records by type. The value could be either "tree_planted", "waste_removed", "carbon_captured" or "money_donated".
    * @param params.startDate - Optional: Filter records created on or after this date (format: YYYY-MM-DD)
    * @param params.endDate - Optional: Filter records created on or before this date (format: YYYY-MM-DD)
    * @param params.cursor - Optional: Pagination cursor from previous response for fetching next page
    * @param params.limit - Optional: Maximum number of records to return (1-1000, default: 10)
    * @returns Records based on the provided filters
    */
-  async getRecords(params: GetRecordsParams = {}): Promise<ApiResponse> {
+  async getRecords(params: GetRecordsParams = {}): Promise<GetRecordsResponse> {
     const queryParams = new URLSearchParams();
 
     if (params.filterBy) queryParams.append("filter_by", params.filterBy);
@@ -168,14 +239,49 @@ export class OneClickImpact {
     const queryString = queryParams.toString();
     const endpoint = `/v1/records${queryString ? "?" + queryString : ""}`;
 
-    return this.makeRequest(endpoint, null, "GET");
+    const response = await this.makeRequest(endpoint, null, "GET");
+
+    // Transform the API response format to match our SDK interface
+    return {
+      userRecords: response.user_records.map((record: any) => {
+        const baseRecord = {
+          userID: record.user_id,
+          timeUTC: record.time_utc,
+        };
+
+        if (record.tree_planted !== undefined) {
+          return {
+            ...baseRecord,
+            treePlanted: record.tree_planted,
+          };
+        } else if (record.waste_removed !== undefined) {
+          return {
+            ...baseRecord,
+            wasteRemoved: record.waste_removed,
+          };
+        } else if (record.carbon_captured !== undefined) {
+          return {
+            ...baseRecord,
+            carbonCaptured: record.carbon_captured,
+          };
+        } else if (record.money_donated !== undefined) {
+          return {
+            ...baseRecord,
+            moneyDonated: record.money_donated,
+          };
+        }
+
+        return baseRecord; // Fallback case
+      }),
+      cursor: response.cursor,
+    };
   }
 
   /**
    * Get customer records
    * @param params - Optional parameters to filter customer records
    * @param params.customerEmail - Optional: Filter records by customer email
-   * @param params.filterBy - Optional: Filter records by type (Can be "tree_planted", "waste_removed", "carbon_captured", or "money_donated")
+   * @param params.filterBy - Optional: Filter records by type. The value could be either "tree_planted", "waste_removed", "carbon_captured" or "money_donated".
    * @param params.startDate - Optional: Filter records created on or after this date (format: YYYY-MM-DD)
    * @param params.endDate - Optional: Filter records created on or before this date (format: YYYY-MM-DD)
    * @param params.cursor - Optional: Pagination cursor from previous response for fetching next page
@@ -184,7 +290,7 @@ export class OneClickImpact {
    */
   async getCustomerRecords(
     params: GetCustomerRecordsParams = {}
-  ): Promise<ApiResponse> {
+  ): Promise<GetCustomerRecordsResponse> {
     const queryParams = new URLSearchParams();
 
     if (params.customerEmail)
@@ -201,7 +307,44 @@ export class OneClickImpact {
       queryString ? "?" + queryString : ""
     }`;
 
-    return this.makeRequest(endpoint, null, "GET");
+    const response = await this.makeRequest(endpoint, null, "GET");
+
+    // Transform the API response format to match our SDK interface
+    return {
+      customerRecords: response.customer_records.map((record: any) => {
+        const baseRecord = {
+          userID: record.user_id,
+          timeUTC: record.time_utc,
+          customer: transformCustomer(record.customer),
+        };
+
+        if (record.tree_planted !== undefined) {
+          return {
+            ...baseRecord,
+            treePlanted: record.tree_planted,
+            category: record.category,
+          };
+        } else if (record.waste_removed !== undefined) {
+          return {
+            ...baseRecord,
+            wasteRemoved: record.waste_removed,
+          };
+        } else if (record.carbon_captured !== undefined) {
+          return {
+            ...baseRecord,
+            carbonCaptured: record.carbon_captured,
+          };
+        } else if (record.money_donated !== undefined) {
+          return {
+            ...baseRecord,
+            moneyDonated: record.money_donated,
+          };
+        }
+
+        return baseRecord; // Fallback case
+      }),
+      cursor: response.cursor,
+    };
   }
 
   /**
@@ -212,7 +355,9 @@ export class OneClickImpact {
    * @param params.cursor - Optional: Pagination cursor from previous response for fetching next page
    * @returns Customers based on the provided filters
    */
-  async getCustomers(params: GetCustomersParams = {}): Promise<ApiResponse> {
+  async getCustomers(
+    params: GetCustomersParams = {}
+  ): Promise<GetCustomersResponse> {
     const queryParams = new URLSearchParams();
 
     if (params.customerEmail)
@@ -224,7 +369,18 @@ export class OneClickImpact {
     const queryString = queryParams.toString();
     const endpoint = `/v1/customers${queryString ? "?" + queryString : ""}`;
 
-    return this.makeRequest(endpoint, null, "GET");
+    const response = await this.makeRequest(endpoint, null, "GET");
+
+    // Transform the API response to match our SDK interface
+    return {
+      customers: response.customers.map((customer: any) => ({
+        customerID: customer.customer_id,
+        customerEmail: customer.customer_email,
+        customerName: customer.customer_name,
+        onboardedOn: customer.onboarded_on,
+      })),
+      cursor: response.cursor,
+    };
   }
 
   /**
@@ -233,18 +389,19 @@ export class OneClickImpact {
    * @param body - Request body
    * @param method - HTTP method (default: POST)
    * @returns API response
+   * @throws Error if the API returns an error
    */
   private async makeRequest(
     endpoint: string,
     body: Record<string, any> | null,
     method: string = "POST"
-  ): Promise<ApiResponse> {
+  ): Promise<any> {
     try {
       const options: RequestInit = {
         method,
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${this.apiKey}`,
+          "x-api-key": `${this.apiKey}`,
         },
       };
 
@@ -257,9 +414,10 @@ export class OneClickImpact {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data.error || `Request failed with status ${response.status}`
-        );
+        if (data.type && data.message) {
+          throw new Error(`${data.type}: ${data.message}`);
+        }
+        throw new Error(`Request failed with status ${response.status}`);
       }
 
       return data;
@@ -270,4 +428,17 @@ export class OneClickImpact {
       throw error;
     }
   }
+}
+
+/**
+ * Helper function to transform customer data from API format to SDK format
+ */
+function transformCustomer(customerData: any): Customer {
+  return {
+    customerID: customerData.customer_id,
+    CustomerInfo: {
+      customerEmail: customerData.customer_email,
+      customerName: customerData.customer_name,
+    },
+  };
 }

@@ -18,11 +18,14 @@
   "author": "1ClickImpact",
   "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^29.5.0",
     "@types/node": "^18.11.18",
-    "typescript": "^4.9.4",
-    "jest": "^29.3.1",
-    "@types/jest": "^29.2.5",
-    "ts-jest": "^29.0.3"
+    "@types/node-fetch": "^2.6.4",
+    "dotenv": "^16.5.0",
+    "jest": "^29.5.0",
+    "node-fetch": "^2.6.7",
+    "ts-jest": "^29.1.0",
+    "typescript": "^4.9.4"
   },
   "files": [
     "dist"
